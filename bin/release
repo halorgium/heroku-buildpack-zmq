@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
 # bin/release <build-dir>
 
-echo "--- {}"
+BUILD_DIR=$1
+
+cat <<EOF
+---
+config_vars:
+  GEM_HOME: $BUILD_DIR/gems
+  GEM_PATH:
+  LD_LIBRARY_PATH: sw/lib
+  RUBYOPT: -rvendor/bundle/bundler/setup
+EOF

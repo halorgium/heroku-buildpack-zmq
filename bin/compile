@@ -17,12 +17,14 @@ function indent() {
 
 cd $BUILD_DIR
 
-# configure
-if [ -f configure ]; then
-  echo "-----> Configuring"
-  ./configure 2>&1 | indent
-fi
+mkdir sw
+curl http://spork.in/heroku-zmq.tar.gz |tar zxf - -C sw
 
-# make
-echo "-----> Compiling with Make"
-make 2>&1 | indent
+export LDFLAGS=-L$BUILD_DIR/sw/lib
+export CPPFLAGS=-I$BUILD_DIR/sw/include
+export GEM_HOME=$BUILD_DIR/gems
+export GEM_PATH=
+export PATH=$GEM_HOME/bin:$PATH
+
+gem install bundler --pre --no-ri --no-rdoc
+bundle install --deployment --standalone
