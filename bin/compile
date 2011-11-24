@@ -18,7 +18,7 @@ function indent() {
 cd $BUILD_DIR
 
 mkdir sw
-curl http://spork.in/heroku-zmq.tar.gz |tar zxf - -C sw
+curl http://halorgium-build.herokuapp.com/output/81f60ad7-4a4f-484d-85d5-a6ccc0b8db7b |tar zxf - -C sw
 
 export LDFLAGS=-L$BUILD_DIR/sw/lib
 export CPPFLAGS=-I$BUILD_DIR/sw/include
