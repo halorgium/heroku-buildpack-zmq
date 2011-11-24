@@ -1,10 +1,22 @@
 #!/usr/bin/env bash
 
+set -e
+mkdir -p sw
+
 vulcan build -v -s `pwd`/sw -p /tmp/sw/usr -c "
+  download () {
+    DEB_PATH=\$1
+    DEB_FILE=\$(basename \$DEB_PATH)
+    EXTRACT_PATH=\$2
+    curl \$UBUNTU_URL/pool/main/\$DEB_PATH > \$DEB_FILE &&
+    dpkg-deb -X \$DEB_FILE /tmp/sw/\$EXTRACT_PATH
+  }
+
+  export UBUNTU_URL=http://us.archive.ubuntu.com/ubuntu &&
   mkdir -p /tmp/sw/usr &&
-  dpkg-deb -X rsync_3.0.7-1ubuntu1.1_amd64.deb /tmp/sw/rsync &&
-  dpkg-deb -X libuuid1_2.17.2-0ubuntu1.10.04.2_amd64.deb /tmp/sw/libuuid1 &&
-  dpkg-deb -X uuid-dev_2.17.2-0ubuntu1.10.04.2_amd64.deb /tmp/sw/uuid-dev &&
+  download r/rsync/rsync_3.0.7-1ubuntu1.1_amd64.deb rsync &&
+  download u/util-linux/libuuid1_2.17.2-0ubuntu1.10.04.2_amd64.deb libuuid1 &&
+  download u/util-linux/uuid-dev_2.17.2-0ubuntu1.10.04.2_amd64.deb uuid-dev &&
   /tmp/sw/rsync/usr/bin/rsync -vvaP /tmp/sw/libuuid1/usr/ /tmp/sw/usr/ &&
   /tmp/sw/rsync/usr/bin/rsync -vvaP /tmp/sw/libuuid1/lib/ /tmp/sw/usr/lib/ &&
   /tmp/sw/rsync/usr/bin/rsync -vvaP /tmp/sw/uuid-dev/usr/ /tmp/sw/usr/ &&
@@ -13,14 +25,13 @@ vulcan build -v -s `pwd`/sw -p /tmp/sw/usr -c "
     cd /tmp/sw/usr/lib &&
     ln -vnfs libuuid.so.1.3.0 libuuid.so
   ) &&
+  curl http://download.zeromq.org/zeromq-2.1.10.tar.gz > zeromq-2.1.10.tar.gz &&
+  tar zxvf zeromq-2.1.10.tar.gz &&
   (
     cd zeromq-2.1.10 &&
-    ./configure --help &&
     ./configure CPPFLAGS=-I/tmp/sw/usr/include LDFLAGS=-L/tmp/sw/usr/lib --prefix=/tmp/sw/usr &&
     make install
-  ) &&
-  find &&
-  find /tmp/sw
+  )
 "
 
 tar ztvf /tmp/sw.tgz
